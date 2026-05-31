@@ -292,6 +292,53 @@ async def handler(websocket):
             save_users()
         del players[uid]
 
+async def process_request(path, request_headers):
+    import mimetypes
+    # Разрешаем CORS
+    clean_path = path.split("?")[0]
+    if clean_path == "/":
+        clean_path = "/index.html"
+        
+    safe_path = clean_path.lstrip("/")
+    
+    # Ищем файлы в Client
+    possible_dirs = [
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Client"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "Client"),
+        "/app/Client",
+        "./Client",
+        "Client"
+    ]
+    
+    file_path = None
+    for d in possible_dirs:
+        p = os.path.join(d, safe_path)
+        if os.path.exists(p) and os.path.isfile(p):
+            file_path = p
+            break
+            
+    if file_path:
+        mime_type, _ = mimetypes.guess_type(file_path)
+        if not mime_type:
+            mime_type = "application/octet-stream"
+        if file_path.endswith(".glb"):
+            mime_type = "model/gltf-binary"
+            
+        try:
+            with open(file_path, "rb") as f:
+                content = f.read()
+            headers = [
+                ("Content-Type", mime_type),
+                ("Content-Length", str(len(content))),
+                ("Access-Control-Allow-Origin", "*"),
+                ("Connection", "close"),
+            ]
+            return websockets.http.HTTPStatus.OK, headers, content
+        except Exception as e:
+            print(f"[HTTP] Ошибка отдачи {file_path}: {e}")
+            
+    return None
+
 async def main():
     load_users()
     print("=========================================")
@@ -302,7 +349,7 @@ async def main():
     asyncio.create_task(physics_loop())
     asyncio.create_task(ai_loop())
     port = int(os.environ.get("PORT", 12345))
-    print(f"[SERVER] Запуск WebSocket сервера на порту {port}")
-    async with websockets.serve(handler, "0.0.0.0", port): await asyncio.Future()
+    print(f"[SERVER] Запуск WebSocket + HTTP сервера на порту {port}")
+    async with websockets.serve(handler, "0.0.0.0", port, process_request=process_request): await asyncio.Future()
 
 if __name__ == "__main__": asyncio.run(main())
