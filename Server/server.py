@@ -337,7 +337,7 @@ async def process_request(path, request_headers):
                 ("Access-Control-Allow-Origin", "*"),
                 ("Connection", "close"),
             ]
-            return websockets.http.HTTPStatus.OK, headers, content
+            return 200, headers, content
         except Exception as e:
             print(f"[HTTP] Ошибка отдачи {file_path}: {e}")
             
