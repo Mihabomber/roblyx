@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: blob: file: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline' ws://* wss://*; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline' https://fonts.googleapis.com; font-src * https://fonts.gstatic.com; media-src *; img-src * data: blob: content:; connect-src * file: blob: ws://* wss://*;">
+    <title>Misha's Ultimate Cyber-Birthday 2026</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.1/nipplejs.min.js"></script>
+</head>
+<body>
+    <div id="game-container"></div>
+    
+    <div id="auth-screen">
+        <div class="auth-box">
+            <h2 style="text-align: center; margin-top: 0; font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px var(--neon-pink); color: var(--neon-pink);">CYBER-BIRTHDAY 2026</h2>
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Вход</div>
+                <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Регистрация</div>
+            </div>
+            <div class="auth-form" id="form-login">
+                <input type="text" id="login-name" class="auth-input" placeholder="Никнейм">
+                <input type="password" id="login-pwd" class="auth-input" placeholder="Пароль">
+                <div class="auth-error" id="login-error"></div>
+                <button class="auth-btn" onclick="submitAuth('login')">Войти в матрицу</button>
+            </div>
+            <div class="auth-form hidden" id="form-register">
+                <input type="text" id="reg-name" class="auth-input" placeholder="Придумайте Никнейм">
+                <input type="password" id="reg-pwd" class="auth-input" placeholder="Пароль">
+                <input type="password" id="reg-pwd2" class="auth-input" placeholder="Повторите Пароль">
+                <div class="auth-error" id="reg-error"></div>
+                <button class="auth-btn" onclick="submitAuth('register')">Создать аккаунт</button>
+            </div>
+            <div class="server-config">
+                <div class="server-config-title">⚙️ ПОДКЛЮЧЕНИЕ</div>
+                <div class="server-ip-wrapper">
+                    <input type="text" id="server-ip-input" class="auth-input small" placeholder="localhost" title="Введите IP-адрес сервера в Wi-Fi сети">
+                    <button class="server-save-btn" id="btn-save-ip" onclick="saveServerIp()">ОК</button>
+                </div>
+                <div id="connection-status" class="status-indicator">Состояние: отключено</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="core-gui" class="hidden">
+        <div id="top-bar">
+            <button id="menu-btn" onclick="document.getElementById('shop-panel').classList.remove('hidden')">МАГАЗИН</button>
+            <button id="btn-reset" onclick="resetCharacter()">РЕСЕТ (Смерть)</button>
+            <div id="chat-bubble-container">
+                <ul id="chat-messages"></ul>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chat-input" placeholder="Чат (введи 'Привет' для админки)..." autocomplete="off" />
+                    <button id="chat-send">▶</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="leaderboard">
+            <table>
+                <thead><tr><th>Игрок</th><th>Meme Points</th></tr></thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+
+        <div id="mobile-controls">
+            <div id="joystick-zone"></div>
+            <div id="action-buttons">
+                <button id="btn-jump" class="touch-btn">JUMP</button>
+                <button id="btn-interact" class="touch-btn hidden">E</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МАГАЗИН -->
+    <div id="shop-panel" class="hidden">
+        <div class="admin-header">
+            <span>🛒 МАГАЗИН АПГРЕЙДОВ</span>
+            <button class="close-btn" onclick="document.getElementById('shop-panel').classList.add('hidden')">X</button>
+        </div>
+        <div class="admin-content" style="grid-template-columns: 1fr;">
+            <button class="shop-btn" onclick="buyShopItem('speed')">⚡ Скорость x2 (150 Points)</button>
+            <button class="shop-btn" onclick="buyShopItem('jump')">🚀 Супер-Прыжок (200 Points)</button>
+            <button class="shop-btn" onclick="buyShopItem('heal')">❤️ Полное лечение (50 Points)</button>
+            <button class="shop-btn" onclick="buyShopItem('god')">🛡️ Режим Бога (1000 Points)</button>
+        </div>
+    </div>
+
+    <!-- СЕКРЕТНАЯ АДМИН ПАНЕЛЬ -->
+    <div id="admin-panel" class="hidden">
+        <div class="admin-header">
+            <span>💥 CYBER-MATRIX v5.0 (100+ ФУНКЦИЙ) 💥</span>
+            <button class="close-btn" onclick="document.getElementById('admin-panel').classList.add('hidden')">X</button>
+        </div>
+        <div class="admin-content" id="admin-buttons-container">
+            <!-- Кнопки генерируются в app.js -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
