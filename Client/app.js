@@ -55,14 +55,15 @@ const parts = {};
 let interactionTarget = null;
 let isAuthenticated = false;
 
-// Автоопределение IP: на localhost подключаемся к себе, при открытии по локальной сети - к хосту, на Netlify по умолчанию к 192.168.0.27
-let defaultIp = "192.168.0.27";
+// Автоопределение IP: на localhost подключаемся к себе, при локальной сети к хосту, на Netlify - к облачному серверу Hugging Face Spaces!
+let defaultIp = "miha007sigma-cyber-birthday.hf.space";
 if (window.location.hostname) {
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
         defaultIp = "localhost";
-    } else if (window.location.hostname.match(/^(192\.168\.|10\.|172\.)/) || window.location.hostname.includes(".")) {
-        // Если открыто с IP или домена, по умолчанию стучимся на этот же хост
+    } else if (window.location.hostname.match(/^(192\.168\.|10\.|172\.)/) || window.location.hostname === "0.0.0.0") {
         defaultIp = window.location.hostname;
+    } else if (window.location.hostname.includes("netlify.app")) {
+        defaultIp = "miha007sigma-cyber-birthday.hf.space";
     }
 }
 let savedIp = localStorage.getItem("cyber_server_ip") || defaultIp;
@@ -87,12 +88,17 @@ function connectToServer(ip) {
         cleanIp = cleanIp.substring(8);
         wsProtocol = "wss:";
     } else {
-        if (window.location.protocol === "https:" && !cleanIp.match(/^(192\.168\.|127\.0\.0\.1|localhost)/)) {
+        if (window.location.protocol === "https:" || cleanIp.includes("hf.space") || cleanIp.includes("onrender.com")) {
             wsProtocol = "wss:";
         }
     }
     
-    const wsUrl = `${wsProtocol}//${cleanIp}${cleanIp.includes(":") ? "" : ":12345"}`;
+    let wsUrl;
+    if (cleanIp.includes("hf.space") || cleanIp.includes("onrender.com") || cleanIp.includes("ngrok-free.app") || cleanIp.includes("serveo.net") || cleanIp.includes("localhost.run")) {
+        wsUrl = `${wsProtocol}//${cleanIp}`;
+    } else {
+        wsUrl = `${wsProtocol}//${cleanIp}${cleanIp.includes(":") ? "" : ":12345"}`;
+    }
     
     if (ws) {
         ws.close();
