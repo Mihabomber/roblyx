@@ -301,6 +301,8 @@ async def main():
     print("=========================================")
     asyncio.create_task(physics_loop())
     asyncio.create_task(ai_loop())
-    async with websockets.serve(handler, "0.0.0.0", 12345): await asyncio.Future()
+    port = int(os.environ.get("PORT", 12345))
+    print(f"[SERVER] Запуск WebSocket сервера на порту {port}")
+    async with websockets.serve(handler, "0.0.0.0", port): await asyncio.Future()
 
 if __name__ == "__main__": asyncio.run(main())
