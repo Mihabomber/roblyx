@@ -301,13 +301,17 @@ async def process_request(path, request_headers):
         
     safe_path = clean_path.lstrip("/")
     
-    # Ищем файлы в Client
+    # Ищем файлы в Client или в корне (/app, .)
     possible_dirs = [
         os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Client"),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "Client"),
         "/app/Client",
         "./Client",
-        "Client"
+        "Client",
+        "/app",
+        ".",
+        os.path.dirname(os.path.abspath(__file__)),
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ]
     
     file_path = None
